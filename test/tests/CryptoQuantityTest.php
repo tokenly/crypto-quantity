@@ -58,4 +58,11 @@ class CryptoQuantityTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertEquals(round(23 * self::SATOSHI), $q2->getValueForCounterparty());
     }
 
+    public function testConvenienceMethods() {
+        PHPUnit::assertEquals('100', CryptoQuantity::satoshisToValue(10000000000));
+        PHPUnit::assertEquals('100', CryptoQuantity::satoshisToValue(new Math_BigInteger('10000000000')));
+        PHPUnit::assertEquals('100', CryptoQuantity::satoshisToValue(CryptoQuantity::fromSatoshis('10000000000')));
+        PHPUnit::assertEquals('10000000000', CryptoQuantity::valueToSatoshis(100));
+    }
+
 }
