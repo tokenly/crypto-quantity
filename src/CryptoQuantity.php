@@ -164,16 +164,6 @@ class CryptoQuantity implements JsonSerializable
         $this->precision = $precision;
     }
 
-    /**
-     * Get individisble (no decimal) amount
-     * @return string A string representation of an integer
-     */
-    protected function getIndivisibleAmountAsString()
-    {
-        list($quotient, $remainder) = $this->big_integer->divide(new BigInt($this->precision));
-        return $quotient->toString();
-    }
-
     protected static function precisionUnitsAsBigInt($int, $precision)
     {
         return new BigInt($int . str_repeat('0', $precision));
