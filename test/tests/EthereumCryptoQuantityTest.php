@@ -39,24 +39,21 @@ class EthereumCryptoQuantityTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertEquals(200, $q1->getFloatValue());
     }
 
-    public function testEthereumIndivisible() {
-        $q1 = EthereumCryptoQuantity::fromIndivisibleAmount(100);
-        PHPUnit::assertEquals(100, $q1->getValueForCounterparty());
-
+    public function testEthereumLargeNumber() {
         // very large number
-        $q1 = EthereumCryptoQuantity::fromIndivisibleAmount('10000000000000');
-        PHPUnit::assertEquals('10000000000000', $q1->getValueForCounterparty());
+        $q1 = EthereumCryptoQuantity::fromFloat(10000000000000);
+        PHPUnit::assertEquals('10000000000000', $q1->getFloatValue());
     }
 
     public function testEthereumDivisible() {
         $q1 = EthereumCryptoQuantity::fromFloat(2.3);
-        PHPUnit::assertEquals(round(2.3 * self::SATOSHI), $q1->getValueForCounterparty());
+        PHPUnit::assertEquals(round(2.3 * self::SATOSHI), $q1->getSatoshisString());
     }
 
     public function testEthereumPassthroughCall() {
         $q1 = EthereumCryptoQuantity::fromFloat(2.3);
         $q2 = $q1->multiply(new Math_BigInteger(10));
-        PHPUnit::assertEquals(round(23 * self::SATOSHI), $q2->getValueForCounterparty());
+        PHPUnit::assertEquals(round(23 * self::SATOSHI), $q2->getSatoshisString());
     }
 
 }

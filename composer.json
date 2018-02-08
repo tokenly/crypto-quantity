@@ -16,7 +16,8 @@
         "pear/Math_BigInteger": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~4"
+        "phpunit/phpunit": "~4",
+        "satooshi/php-coveralls": "^2.0"
     },
     "autoload": {
         "psr-4": {"Tokenly\\CryptoQuantity\\": "src/"}

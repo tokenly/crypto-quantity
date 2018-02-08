@@ -2,6 +2,7 @@
 
 namespace Tokenly\CryptoQuantity;
 
+use Exception;
 use JsonSerializable;
 use Math_BigInteger as BigInt;
 
@@ -11,62 +12,80 @@ use Math_BigInteger as BigInt;
 class CryptoQuantity implements JsonSerializable
 {
 
-    protected static $SATOSHI = 100000000;
+    protected static $PRECISION = 8;
 
     protected $big_integer;
-    protected $is_divisible = true;
-    protected $satoshi;
+    protected $precision;
 
     /**
      * Creates a new quantity from a float value
      * @param  float   $float_value   The amount as a float
-     * @param  boolean $is_divisible  false for indivisible assets (default is true)
+     * @param  integer $precision     Number of decimal places of precision
      * @return CryptoQuantity         The new CryptoQuantity object
      */
-    public static function fromFloat($float_value, $is_divisible = true)
+    public static function fromFloat($float_value, $precision = null)
     {
+        if ($precision === null) {
+            $precision = static::$PRECISION;
+        }
+
         // left of decimal point
         $rounded_float = intval(round($float_value));
-        $big_integer_int = (new BigInt($rounded_float))->multiply(new BigInt(static::$SATOSHI));
+        $big_integer_int = (new BigInt($rounded_float))->multiply(self::precisionUnitsAsBigInt(1, $precision));
 
         // right of decimal point
-        $rounded_decimal = intval(round(floatval($float_value - $rounded_float) * static::$SATOSHI));
-        $big_integer_decimal = (new BigInt($rounded_decimal));
+        $rounded_decimal = intval(round(floatval($float_value - $rounded_float) * pow(10, $precision)));
+        $big_integer_decimal = new BigInt($rounded_decimal);
 
         // add the integer value and the decimal value
-        return new static($big_integer_int->add($big_integer_decimal), $is_divisible, static::$SATOSHI);
+        return new static($big_integer_int->add($big_integer_decimal), $precision);
     }
 
     /**
-     * Creates an indivisible asset quantity from an integer
-     * @param  integer $integer The indivisible amount
+     * Creates an asset quantity from an integer number of precisions
+     * @param  integer|string $integer The amount in precisions
+     * @param  integer $precision     Number of decimal places of precision
      * @return CryptoQuantity   The new CryptoQuantity object
      */
-    public static function fromIndivisibleAmount($integer)
+    public static function fromSatoshis($integer, $precision = null)
     {
-        return new static((new BigInt($integer))->multiply(new BigInt(static::$SATOSHI)), false, static::$SATOSHI);
+        if ($precision === null) {
+            $precision = static::$PRECISION;
+        }
+        return new static(new BigInt($integer), $precision);
     }
 
     /**
-     * Creates an asset quantity from an integer number of satoshis
-     * @param  integer|string $integer The amount in satoshis
-     * @param  boolean $is_divisible  false for indivisible assets (default is true)
-     * @return CryptoQuantity   The new CryptoQuantity object
-     */
-    public static function fromSatoshis($integer, $is_divisible = true)
-    {
-        return new static(new BigInt($integer), $is_divisible, static::$SATOSHI);
-    }
-
-    /**
-     * Creates an asset quantity from an integer number of satoshis
+     * Creates an asset quantity from an integer number of precisions
      * @param  Math_BigInteger $big_integer   The amount as a big integer object
-     * @param  boolean         $is_divisible  false for indivisible assets (default is true)
+     * @param  integer         $precision     Number of decimal places of precision
      * @return CryptoQuantity   The new CryptoQuantity object
      */
-    public static function fromBigIntegerSatoshis(BigInt $big_integer, $is_divisible = true)
+    public static function fromBigIntegerSatoshis(BigInt $big_integer, $precision = null)
     {
-        return new static($big_integer, $is_divisible, static::$SATOSHI);
+        if ($precision === null) {
+            $precision = static::$PRECISION;
+        }
+        return new static($big_integer, $precision);
+    }
+
+
+    /**
+     * Unserialize a quantity object
+     * @param  array $serialized_quantity  Serialized quantity data
+     * @return CryptoQuantity The quantity class
+     */
+    public static function unserialize($serialized_quantity) {
+        if (is_array($serialized_quantity)) {
+            $json_array = $serialized_quantity;
+        } else {
+            $json_array = json_decode($serialized_quantity, true);
+        }
+        if (!is_array($json_array)) {
+            throw new Exception("Invalid serialized quantity", 1);
+        }
+
+        return static::fromSatoshis($json_array['value'], $json_array['precision']);
     }
 
     // convenience methods
@@ -82,24 +101,7 @@ class CryptoQuantity implements JsonSerializable
     // ------------------------------------------------------------------------
 
     /**
-     * Returns an appropriate value for counterparty calls
-     * Divisible assets return a number of satoshis represented as a string
-     * Indivisible assets return a number represented as a string
-     * @return string A string representation of an integer
-     */
-    public function getValueForCounterparty()
-    {
-        if ($this->is_divisible) {
-            // divisible - convert to satoshis
-            return $this->getSatoshisString();
-        } else {
-            // not divisible - do not use satoshis
-            return $this->getIndivisibleAmountAsString();
-        }
-    }
-
-    /**
-     * Gets the number of satoshis represented as a string
+     * Gets the number of precisions represented as a string
      * @return string A string representation of an integer
      */
     public function getSatoshisString()
@@ -113,8 +115,8 @@ class CryptoQuantity implements JsonSerializable
      */
     public function getFloatValue()
     {
-        list($quotient, $remainder) = $this->big_integer->divide(new BigInt($this->satoshi));
-        return floatval($quotient->toString()) + floatval($remainder->toString() / $this->satoshi);
+        list($quotient, $remainder) = $this->big_integer->divide(self::precisionUnitsAsBigInt(1, $this->precision));
+        return floatval($quotient->toString()) + floatval($remainder->toString() / pow(10, $this->precision));
     }
 
     /**
@@ -127,7 +129,7 @@ class CryptoQuantity implements JsonSerializable
 
         // wrap a Math_BigInteger result in a new CryptoQuantity
         if ($result instanceof BigInt) {
-            return new static($result, $this->is_divisible, $this->satoshi);
+            return new static($result, $this->precision);
         }
 
         return $result;
@@ -143,7 +145,7 @@ class CryptoQuantity implements JsonSerializable
     }
 
     /**
-     * returns the satoshis as a string
+     * returns the precisions as a string
      * @return string A string representation of an integer
      */
     public function __toString()
@@ -158,19 +160,17 @@ class CryptoQuantity implements JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'class' => get_class($this),
-            'is_divisible' => $this->is_divisible,
             'value' => $this->getSatoshisString(),
+            'precision' => $this->precision,
         ];
     }
 
     // ------------------------------------------------------------------------
 
-    protected function __construct(BigInt $big_integer, $is_divisible, $satoshi)
+    protected function __construct(BigInt $big_integer, $precision)
     {
         $this->big_integer = $big_integer;
-        $this->is_divisible = $is_divisible;
-        $this->satoshi = $satoshi;
+        $this->precision = $precision;
     }
 
     /**
@@ -179,8 +179,13 @@ class CryptoQuantity implements JsonSerializable
      */
     protected function getIndivisibleAmountAsString()
     {
-        list($quotient, $remainder) = $this->big_integer->divide(new BigInt($this->satoshi));
+        list($quotient, $remainder) = $this->big_integer->divide(new BigInt($this->precision));
         return $quotient->toString();
+    }
+
+    protected static function precisionUnitsAsBigInt($int, $precision)
+    {
+        return new BigInt($int . str_repeat('0', $precision));
     }
 
 }

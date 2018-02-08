@@ -8,6 +8,6 @@ namespace Tokenly\CryptoQuantity;
 class EthereumCryptoQuantity extends CryptoQuantity
 {
 
-    protected static $SATOSHI = 1000000000000000000;
+    protected static $PRECISION = 18;
 
 }

@@ -38,24 +38,11 @@ class CryptoQuantityTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertEquals(100, $q1->getFloatValue());
     }
 
-    public function testIndivisible() {
-        $q1 = CryptoQuantity::fromIndivisibleAmount(100);
-        PHPUnit::assertEquals(100, $q1->getValueForCounterparty());
-
-        // very large number
-        $q1 = CryptoQuantity::fromIndivisibleAmount('10000000000000');
-        PHPUnit::assertEquals('10000000000000', $q1->getValueForCounterparty());
-    }
-
-    public function testDivisible() {
-        $q1 = CryptoQuantity::fromFloat(2.3);
-        PHPUnit::assertEquals(round(2.3 * self::SATOSHI), $q1->getValueForCounterparty());
-    }
 
     public function testPassthroughCall() {
         $q1 = CryptoQuantity::fromFloat(2.3);
         $q2 = $q1->multiply(new Math_BigInteger(10));
-        PHPUnit::assertEquals(round(23 * self::SATOSHI), $q2->getValueForCounterparty());
+        PHPUnit::assertEquals(round(23 * self::SATOSHI), $q2->getSatoshisString());
     }
 
     public function testConvenienceMethods() {
