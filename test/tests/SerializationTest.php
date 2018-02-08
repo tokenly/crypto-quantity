@@ -35,5 +35,25 @@ class SerializationTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertEquals($q1->getFloatValue(), $q2->getFloatValue());
     }
 
+    public function testUnserializeText() {
+        $q1 = CryptoQuantity::fromSatoshis(12345);
+        $encoded = json_encode($q1);
+
+        $q2 = CryptoQuantity::unserialize($encoded);
+
+        PHPUnit::assertEquals($q1->getSatoshisString(), $q2->getSatoshisString());
+        PHPUnit::assertEquals($q1->getFloatValue(), $q2->getFloatValue());
+    }
+
+    public function testUnserializeError() {
+        $caught = false;
+        try {
+            $q2 = CryptoQuantity::unserialize('foo');
+        } catch (Exception $e) {
+            $caught = true;
+        }
+
+        PHPUnit::assertTrue($caught);
+    }
 
 }
