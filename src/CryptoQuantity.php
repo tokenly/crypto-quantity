@@ -136,15 +136,6 @@ class CryptoQuantity implements JsonSerializable
     }
 
     /**
-     * Passes through accessor to the underlying Math_BigInteger instance
-     * @return mixed property value
-     */
-    public function __get($attribute)
-    {
-        return $this->big_integer->$attribute;
-    }
-
-    /**
      * returns the precisions as a string
      * @return string A string representation of an integer
      */
