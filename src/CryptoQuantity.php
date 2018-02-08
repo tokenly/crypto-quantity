@@ -34,7 +34,7 @@ class CryptoQuantity implements JsonSerializable
         $big_integer_decimal = (new BigInt($rounded_decimal));
 
         // add the integer value and the decimal value
-        return new self($big_integer_int->add($big_integer_decimal), $is_divisible, static::$SATOSHI);
+        return new static($big_integer_int->add($big_integer_decimal), $is_divisible, static::$SATOSHI);
     }
 
     /**
@@ -44,7 +44,7 @@ class CryptoQuantity implements JsonSerializable
      */
     public static function fromIndivisibleAmount($integer)
     {
-        return new self((new BigInt($integer))->multiply(new BigInt(static::$SATOSHI)), false, static::$SATOSHI);
+        return new static((new BigInt($integer))->multiply(new BigInt(static::$SATOSHI)), false, static::$SATOSHI);
     }
 
     /**
@@ -55,7 +55,7 @@ class CryptoQuantity implements JsonSerializable
      */
     public static function fromSatoshis($integer, $is_divisible = true)
     {
-        return new self(new BigInt($integer), $is_divisible, static::$SATOSHI);
+        return new static(new BigInt($integer), $is_divisible, static::$SATOSHI);
     }
 
     /**
@@ -66,7 +66,7 @@ class CryptoQuantity implements JsonSerializable
      */
     public static function fromBigIntegerSatoshis(BigInt $big_integer, $is_divisible = true)
     {
-        return new self($big_integer, $is_divisible, static::$SATOSHI);
+        return new static($big_integer, $is_divisible, static::$SATOSHI);
     }
 
     // convenience methods
@@ -127,7 +127,7 @@ class CryptoQuantity implements JsonSerializable
 
         // wrap a Math_BigInteger result in a new CryptoQuantity
         if ($result instanceof BigInt) {
-            return new self($result, $this->is_divisible, $this->satoshi);
+            return new static($result, $this->is_divisible, $this->satoshi);
         }
 
         return $result;
