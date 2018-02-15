@@ -69,6 +69,43 @@ class CryptoQuantity implements JsonSerializable
         return new static($big_integer, $precision);
     }
 
+    /**
+     * Creates an asset quantity from another cryptoquantity and adjusts the precision
+     * This will round if the new precision is smaller than the previous precision
+     * @param  Math_BigInteger $big_integer   The amount as a big integer object
+     * @param  integer         $precision     Number of decimal places of precision
+     * @return CryptoQuantity   The new CryptoQuantity object
+     */
+    public static function fromCryptoQuantity(CryptoQuantity $source_quantity, $precision = null)
+    {
+        if ($precision === null) {
+            $precision = static::$PRECISION;
+        }
+
+        $round_up = false;
+        $source_precision = $source_quantity->getPrecision();
+        $precision_delta = $precision - $source_precision;
+        if ($precision_delta > 0) {
+            // add zeros
+            $satoshis_string = $source_quantity->getSatoshisString().str_repeat('0', $precision_delta);
+        } else if ($precision_delta < 0) {
+            // remove digits and check for rounding
+            //   (divide by 10e{$precision_delta})
+            $satoshis_string = $source_quantity->getSatoshisString();
+            $round_digit = substr($satoshis_string, $precision_delta, 1);
+            $satoshis_string = substr($satoshis_string, 0, $precision_delta);
+            $round_up = ($round_digit >= 5);
+        } else {
+            return clone $source_quantity;
+        }
+
+        $new_quantity = static::fromSatoshis($satoshis_string, $precision);
+        if ($round_up) {
+            $new_quantity = $new_quantity->add(new BigInt(1));
+        }
+        return $new_quantity;
+    }
+
 
     /**
      * Unserialize a quantity object
@@ -118,6 +155,16 @@ class CryptoQuantity implements JsonSerializable
         list($quotient, $remainder) = $this->big_integer->divide(self::precisionUnitsAsBigInt(1, $this->precision));
         return floatval($quotient->toString()) + floatval($remainder->toString() / pow(10, $this->precision));
     }
+    
+    /**
+     * Gets the precision for this quantity
+     * @return integer Number of digits of precision
+     */
+    public function getPrecision()
+    {
+        return $this->precision;
+    }
+
 
     /**
      * Passes through a call to the Math_BigInteger library and returns a new object
