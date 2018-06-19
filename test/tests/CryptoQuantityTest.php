@@ -50,6 +50,21 @@ class CryptoQuantityTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertEquals('100', CryptoQuantity::satoshisToValue(new Math_BigInteger('10000000000')));
         PHPUnit::assertEquals('100', CryptoQuantity::satoshisToValue(CryptoQuantity::fromSatoshis('10000000000')));
         PHPUnit::assertEquals('10000000000', CryptoQuantity::valueToSatoshis(100));
+
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(1)->gt(CryptoQuantity::fromSatoshis(0)));
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(1)->gt(0));
+        PHPUnit::assertFalse(CryptoQuantity::fromSatoshis(1)->gt(CryptoQuantity::fromSatoshis(5)));
+        PHPUnit::assertFalse(CryptoQuantity::fromSatoshis(1)->gt(5));
+
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(1)->gte(CryptoQuantity::fromSatoshis(0)));
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(1)->gte(0));
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(1)->gte(1));
+
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(1)->lt(2));
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(1)->lte(1));
+
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(0)->isZero());
+        PHPUnit::assertFalse(CryptoQuantity::fromSatoshis(1)->isZero());
     }
 
 }

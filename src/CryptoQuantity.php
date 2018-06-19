@@ -126,13 +126,23 @@ class CryptoQuantity implements JsonSerializable
     }
 
     // convenience methods
-    public static function satoshisToValue($integer)
+    public static function floatToSatoshis($float)
+    {
+        return self::fromFloat($float)->getSatoshisString();
+    }
+    public static function satoshisToFloat($integer)
     {
         return self::fromSatoshis($integer)->getFloatValue();
     }
+
+    // backwards compatible methods
+    public static function satoshisToValue($integer)
+    {
+        return self::satoshisToFloat($integer);
+    }
     public static function valueToSatoshis($float)
     {
-        return self::fromFloat($float)->getSatoshisString();
+        return self::floatToSatoshis($float);
     }
 
     // ------------------------------------------------------------------------
@@ -163,6 +173,68 @@ class CryptoQuantity implements JsonSerializable
     public function getPrecision()
     {
         return $this->precision;
+    }
+
+
+    /**
+     * Returns true if greater than
+     * @param  CryptoQuantity|int $other quantity to compare to
+     * @return boolean
+     */
+    public function gt($other)
+    {
+        if (!($other instanceof self)) {
+            $other = self::fromSatoshis($other);
+        }
+        return ($this->compare($other) > 0);
+    }
+
+    /**
+     * Returns true if greater than or equal to
+     * @param  CryptoQuantity|int $other quantity to compare to
+     * @return boolean
+     */
+    public function gte($other)
+    {
+        if (!($other instanceof self)) {
+            $other = self::fromSatoshis($other);
+        }
+        return ($this->compare($other) >= 0);
+    }
+
+    /**
+     * Returns true if less than
+     * @param  CryptoQuantity|int $other quantity to compare to
+     * @return boolean
+     */
+    public function lt($other)
+    {
+        if (!($other instanceof self)) {
+            $other = self::fromSatoshis($other);
+        }
+        return ($this->compare($other) < 0);
+    }
+
+    /**
+     * Returns true if less than or equal to
+     * @param  CryptoQuantity|int $other quantity to compare to
+     * @return boolean
+     */
+    public function lte($other)
+    {
+        if (!($other instanceof self)) {
+            $other = self::fromSatoshis($other);
+        }
+        return ($this->compare($other) <= 0);
+    }
+
+    /**
+     * Returns true if exactly zero
+     * @return boolean
+     */
+    public function isZero()
+    {
+        return ($this->compare(self::fromSatoshis(0)) === 0);
     }
 
 
