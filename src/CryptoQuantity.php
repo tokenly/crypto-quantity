@@ -138,21 +138,21 @@ class CryptoQuantity implements JsonSerializable
     // convenience methods
     public static function floatToSatoshis($float)
     {
-        return self::fromFloat($float)->getSatoshisString();
+        return static::fromFloat($float)->getSatoshisString();
     }
     public static function satoshisToFloat($integer)
     {
-        return self::fromSatoshis($integer)->getFloatValue();
+        return static::fromSatoshis($integer)->getFloatValue();
     }
 
     // backwards compatible methods
     public static function satoshisToValue($integer)
     {
-        return self::satoshisToFloat($integer);
+        return static::satoshisToFloat($integer);
     }
     public static function valueToSatoshis($float)
     {
-        return self::floatToSatoshis($float);
+        return static::floatToSatoshis($float);
     }
 
     // ------------------------------------------------------------------------
@@ -194,7 +194,7 @@ class CryptoQuantity implements JsonSerializable
     public function gt($other)
     {
         if (!($other instanceof self)) {
-            $other = self::fromSatoshis($other);
+            $other = static::fromSatoshis($other);
         }
         return ($this->compare($other) > 0);
     }
@@ -207,7 +207,7 @@ class CryptoQuantity implements JsonSerializable
     public function gte($other)
     {
         if (!($other instanceof self)) {
-            $other = self::fromSatoshis($other);
+            $other = static::fromSatoshis($other);
         }
         return ($this->compare($other) >= 0);
     }
@@ -220,7 +220,7 @@ class CryptoQuantity implements JsonSerializable
     public function lt($other)
     {
         if (!($other instanceof self)) {
-            $other = self::fromSatoshis($other);
+            $other = static::fromSatoshis($other);
         }
         return ($this->compare($other) < 0);
     }
@@ -233,7 +233,7 @@ class CryptoQuantity implements JsonSerializable
     public function lte($other)
     {
         if (!($other instanceof self)) {
-            $other = self::fromSatoshis($other);
+            $other = static::fromSatoshis($other);
         }
         return ($this->compare($other) <= 0);
     }
@@ -244,7 +244,7 @@ class CryptoQuantity implements JsonSerializable
      */
     public function isZero()
     {
-        return ($this->compare(self::fromSatoshis(0)) === 0);
+        return ($this->compare(static::fromSatoshis(0)) === 0);
     }
 
 
