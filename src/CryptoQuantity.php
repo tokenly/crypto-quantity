@@ -56,6 +56,16 @@ class CryptoQuantity implements JsonSerializable
     }
 
     /**
+     * Creates an asset quantity with a value of 0
+     * @param  integer $precision     Number of decimal places of precision
+     * @return CryptoQuantity   The new CryptoQuantity object
+     */
+    public static function zero($precision = null)
+    {
+        return static::fromSatoshis(0, $precision);
+    }
+
+    /**
      * Creates an asset quantity from an integer number of precisions
      * @param  Math_BigInteger $big_integer   The amount as a big integer object
      * @param  integer         $precision     Number of decimal places of precision

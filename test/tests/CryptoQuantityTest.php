@@ -65,6 +65,8 @@ class CryptoQuantityTest extends \PHPUnit_Framework_TestCase
 
         PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(0)->isZero());
         PHPUnit::assertFalse(CryptoQuantity::fromSatoshis(1)->isZero());
+
+        PHPUnit::assertTrue(CryptoQuantity::zero()->isZero());
     }
 
 }
