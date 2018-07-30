@@ -67,6 +67,33 @@ class CryptoQuantityTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertFalse(CryptoQuantity::fromSatoshis(1)->isZero());
 
         PHPUnit::assertTrue(CryptoQuantity::zero()->isZero());
+
+        // equals
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(10000000000)->equals(10000000000));
+        PHPUnit::assertFalse(CryptoQuantity::fromSatoshis(10000000000)->equals(10000000001));
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(1)->equals(100000000));
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(1)->equals(CryptoQuantity::fromFloat(1)));
+    
+        // add
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(1)->add(CryptoQuantity::fromFloat(2))->equals(CryptoQuantity::fromFloat(3)));
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(1)->add(5)->equals(100000005));
+
+        // subtract
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(5)->subtract(CryptoQuantity::fromFloat(2))->equals(CryptoQuantity::fromFloat(3)));
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(5)->subtract(3)->equals(499999997));
+
+        // multiply
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(3)->multiply(CryptoQuantity::fromSatoshis(2))->equals(CryptoQuantity::fromFloat(6)));
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(3)->multiply(2)->equals(CryptoQuantity::fromFloat(6)));
+
+        // divideAndRound
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(6)->divideAndRound(CryptoQuantity::fromSatoshis(2))->equals(CryptoQuantity::fromFloat(3)));
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(6)->divideAndRound(2)->equals(CryptoQuantity::fromFloat(3)));
+        PHPUnit::assertTrue(CryptoQuantity::fromFloat(7)->divideAndRound(2)->equals(CryptoQuantity::fromFloat(3.5)));
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(600000001)->divideAndRound(2)->equals(300000000));
+        PHPUnit::assertTrue(CryptoQuantity::fromSatoshis(600000001)->divideAndRound(2, $_round_up = true)->equals(300000001));
     }
+
+
 
 }

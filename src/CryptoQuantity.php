@@ -125,6 +125,8 @@ class CryptoQuantity implements JsonSerializable
     public static function unserialize($serialized_quantity) {
         if (is_array($serialized_quantity)) {
             $json_array = $serialized_quantity;
+        } else if (is_object($serialized_quantity)) {
+            $json_array = json_decode(json_encode($serialized_quantity), true);
         } else {
             $json_array = json_decode($serialized_quantity, true);
         }
@@ -194,7 +196,7 @@ class CryptoQuantity implements JsonSerializable
     public function gt($other)
     {
         if (!($other instanceof self)) {
-            $other = static::fromSatoshis($other);
+            $other = new BigInt($other);
         }
         return ($this->compare($other) > 0);
     }
@@ -207,7 +209,7 @@ class CryptoQuantity implements JsonSerializable
     public function gte($other)
     {
         if (!($other instanceof self)) {
-            $other = static::fromSatoshis($other);
+            $other = new BigInt($other);
         }
         return ($this->compare($other) >= 0);
     }
@@ -220,7 +222,7 @@ class CryptoQuantity implements JsonSerializable
     public function lt($other)
     {
         if (!($other instanceof self)) {
-            $other = static::fromSatoshis($other);
+            $other = new BigInt($other);
         }
         return ($this->compare($other) < 0);
     }
@@ -233,7 +235,7 @@ class CryptoQuantity implements JsonSerializable
     public function lte($other)
     {
         if (!($other instanceof self)) {
-            $other = static::fromSatoshis($other);
+            $other = new BigInt($other);
         }
         return ($this->compare($other) <= 0);
     }
@@ -244,7 +246,82 @@ class CryptoQuantity implements JsonSerializable
      */
     public function isZero()
     {
-        return ($this->compare(static::fromSatoshis(0)) === 0);
+        return ($this->compare(new BigInt(0)) === 0);
+    }
+
+    /**
+     * Returns true if exactly equal to
+     * @param  CryptoQuantity|int $other quantity to compare to
+     * @return boolean
+     */
+    public function equals($other)
+    {
+        if (!($other instanceof self)) {
+            $other = new BigInt($other);
+        }
+        return ($this->compare($other) === 0);
+    }
+
+
+    /**
+     * Adds to this quantity
+     * @param  CryptoQuantity|int $other quantity to add
+     * @return mixed A new CryptoQuantity object
+     */
+    public function add($other)
+    {
+        return $this->wrappedSingleArgOperation('add', $other);
+    }
+
+
+    /**
+     * Subtracts from this quantity
+     * @param  CryptoQuantity|int $other quantity to subtract
+     * @return mixed A new CryptoQuantity object
+     */
+    public function subtract($other)
+    {
+        return $this->wrappedSingleArgOperation('subtract', $other);
+    }
+
+
+    /**
+     * Multiply this quantity by some value
+     * @param  CryptoQuantity|int $multiplier quantity to multiply
+     * @return mixed A new CryptoQuantity object
+     */
+    public function multiply($multiplier)
+    {
+        return $this->wrappedSingleArgOperation('multiply', $multiplier);
+    }
+
+
+    /**
+     * Divide this quantity by some value
+     * CryptoQuantity::fromFloat(6)->divideAndRound(2); // returns a CryptoQuantity equivalent of 3
+     * @param  CryptoQuantity|int $divisor quantity to divide by
+     * @param  boolean $round_up Set to true to round up by one if the remainder is greater than zero
+     * @return mixed A new CryptoQuantity object which is the quotient of the operation
+     */
+    public function divideAndRound($divisor, $round_up = false)
+    {
+        // convert an integer
+        if (!($divisor instanceof self)) {
+            $divisor = new BigInt($divisor);
+        }
+
+        // call the BigInt operation
+        [$quotient, $remainder] = $this->big_integer->divide($divisor);
+
+        // round up if specified
+        if ($round_up === true) {
+            if ($remainder->compare(new BigInt(0)) > 0) {
+                $quotient = $quotient->add(new BigInt(1));
+            }
+        }
+
+        // wrap the result as a CryptoQuantity
+        return new static($quotient, $this->precision);
     }
 
 
@@ -305,6 +382,20 @@ class CryptoQuantity implements JsonSerializable
     protected static function precisionUnitsAsBigInt($int, $precision)
     {
         return new BigInt($int . str_repeat('0', $precision));
+    }
+
+    protected function wrappedSingleArgOperation($method, $other)
+    {
+        // convert an integer
+        if (!($other instanceof self)) {
+            $other = new BigInt($other);
+        }
+
+        // call the BigInt operation
+        $result = call_user_func([$this->big_integer, $method], $other);
+
+        // wrap the result as a CryptoQuantity
+        return new static($result, $this->precision);
     }
 
 }
