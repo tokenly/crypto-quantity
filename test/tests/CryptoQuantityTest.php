@@ -15,6 +15,18 @@ class CryptoQuantityTest extends \PHPUnit_Framework_TestCase
         $q1 = CryptoQuantity::fromSatoshis(12345);
         PHPUnit::assertEquals(12345, $q1->getSatoshisString());
         PHPUnit::assertEquals(0.00012345, $q1->getFloatValue());
+
+        $q2 = CryptoQuantity::fromSatoshis('5.0e+8');
+        PHPUnit::assertEquals(5 * self::SATOSHI, $q2->getSatoshisString());
+        PHPUnit::assertEquals(5, $q2->getFloatValue());
+
+        $q2 = CryptoQuantity::fromSatoshis('5.1e+8');
+        PHPUnit::assertEquals('510000000', $q2->getSatoshisString());
+        PHPUnit::assertEquals(5.1, $q2->getFloatValue());
+
+        $q2 = CryptoQuantity::fromSatoshis('5.12345678e+8');
+        PHPUnit::assertEquals('512345678', $q2->getSatoshisString());
+        PHPUnit::assertEquals(5.12345678, $q2->getFloatValue());
     }
 
     public function testFromFloat() {

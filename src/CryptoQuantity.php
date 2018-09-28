@@ -52,6 +52,20 @@ class CryptoQuantity implements JsonSerializable
         if ($precision === null) {
             $precision = static::$PRECISION;
         }
+
+        // see if this looks like an exponent
+        //   if so, convert this to a string
+        $e_pos = is_integer($integer) ? false : strpos($integer, 'e+');
+        if ($e_pos !== false) {
+            $base = substr($integer, 0, $e_pos);
+            $exponent = substr($integer, $e_pos + 2);
+            $decimal_pos = strpos($base, '.');
+            $decimal_count = strlen($base) - $decimal_pos - 1;
+            $base = str_replace('.', '', $base);
+            $zeros_count = $exponent - $decimal_count;
+            $integer = $base . str_repeat('0', $zeros_count);
+        }
+
         return new static(new BigInt($integer), $precision);
     }
 

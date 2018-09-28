@@ -56,4 +56,9 @@ class EthereumCryptoQuantityTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertEquals(round(23 * self::SATOSHI), $q2->getSatoshisString());
     }
 
+    public function testEthereumConvenienceMethods()
+    {
+        PHPUnit::assertEquals('1000000000000000000', EthereumCryptoQuantity::floatToSatoshis(1));
+    }
+
 }
