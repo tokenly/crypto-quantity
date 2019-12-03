@@ -2,12 +2,12 @@
 
 use Tokenly\CryptoQuantity\CryptoQuantity;
 use Tokenly\CryptoQuantity\EthereumCryptoQuantity;
-use \PHPUnit_Framework_Assert as PHPUnit;
-
+use \PHPUnit\Framework\Assert as PHPUnit;
+use PHPUnit\Framework\TestCase;
 /*
 * 
 */
-class ConversionTest extends \PHPUnit_Framework_TestCase
+class ConversionTest extends \TestCase
 {
 
     public function testConvertToEthereumQuantity() {

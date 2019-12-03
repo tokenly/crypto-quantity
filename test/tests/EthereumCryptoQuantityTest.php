@@ -1,12 +1,12 @@
 <?php
 
 use Tokenly\CryptoQuantity\EthereumCryptoQuantity;
-use \PHPUnit_Framework_Assert as PHPUnit;
-
+use \PHPUnit\Framework\Assert as PHPUnit;
+use PHPUnit\Framework\TestCase;
 /*
 * 
 */
-class EthereumCryptoQuantityTest extends \PHPUnit_Framework_TestCase
+class EthereumCryptoQuantityTest extends \TestCase
 {
 
     const SATOSHI = 1000000000000000000;
